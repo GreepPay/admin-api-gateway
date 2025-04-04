@@ -1,0 +1,16 @@
+extend type Query @guard {
+    "Get a paginated list of notifications for the authenticated user"
+    GetNotifications: [Notification!]! @paginate @whereAuth(relation: "user")
+}
+
+extend type Mutation @guard {
+    "Save a push notification token for the authenticated user."
+    SavePushNotificationToken(
+        device_token: String!
+        device_type: String!
+    ): Boolean @field(resolver: "NotificationMutator@savePushNotificationToken")
+
+    "Mark specific notifications as read for the authenticated user."
+    MarkNotificationsAsRead(notification_ids: [Int!]!): Boolean
+        @field(resolver: "NotificationMutator@markNotificationsAsRead")
+}

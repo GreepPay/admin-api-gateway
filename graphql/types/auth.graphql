@@ -1,0 +1,41 @@
+"A User in Greep"
+type User {
+    "Unique UUID"
+    uuid: String!
+
+    "The user first name"
+    first_name: String!
+
+    "The user last name"
+    last_name: String!
+
+    "The user username"
+    username: String
+
+    "The user email"
+    email: String!
+
+    "The user phone"
+    phone: String
+
+    "The user email verified at"
+    email_verified_at: DateTime
+
+    "The user phone verified at"
+    phone_verified_at: DateTime
+
+    "The user status"
+    status: String!
+
+    "The attached profile"
+    profile: Profile! @hasOne
+
+    "The attached wallet"
+    wallet: Wallet! @hasOne
+
+    "The user created at"
+    created_at: DateTime!
+
+    "The user updated at"
+    updated_at: DateTime!
+}

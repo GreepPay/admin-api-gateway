@@ -1,0 +1,179 @@
+"A single beneficiary"
+type UserBank {
+    "Unique UUID"
+    uuid: String!
+
+    "Wallet ID"
+    wallet_id: Int!
+
+    "Bank Code"
+    bank_code: String!
+
+    "Bank Name"
+    bank_name: String!
+
+    "Account Number"
+    account_no: String!
+
+    "Currency (default: 'USDC')"
+    currency: String!
+
+    "Is Verified"
+    is_verified: Boolean!
+
+    "State of the beneficiary (active or archived)"
+    state: String!
+
+    "Metadata associated with the beneficiary"
+    meta_data: String
+}
+
+"A single point transaction"
+type PointTransaction {
+    "Unique UUID"
+    uuid: String!
+
+    "Credit or Debit: 'credit' or 'debit'"
+    dr_or_cr: String!
+
+    "Wallet ID"
+    wallet_id: Int!
+
+    "User ID"
+    user_id: Int!
+
+    "Transaction Amount"
+    amount: Float!
+
+    "Point Balance"
+    point_balance: Float!
+
+    "Charge ID"
+    charge_id: String!
+
+    "State of the point transaction ('active' or 'archived')"
+    state: String!
+
+    "Chargeable Type"
+    chargeable_type: String!
+
+    "Point Transaction Description"
+    description: String!
+
+    "Point Transaction Status ('default', 'pending', 'successful')"
+    status: String!
+
+    "Point Transaction Reference"
+    reference: String!
+
+    "Extra Data (JSON string)"
+    extra_data: String
+
+    "Currency (default: 'USDC')"
+    currency: String!
+
+    "PointTransaction Created At"
+    created_at: DateTime!
+
+    "Point Transaction Updated At"
+    updated_at: DateTime!
+}
+
+"A single transaction"
+type Transaction {
+    "Unique UUID"
+    uuid: String!
+
+    "Credit or Debit: 'credit' or 'debit'"
+    dr_or_cr: String!
+
+    "Currency (default: 'USDC')"
+    currency: String!
+
+    "Wallet ID"
+    wallet_id: Int!
+
+    "User ID"
+    user_id: Int!
+
+    "Transaction Amount"
+    amount: Float!
+
+    "Wallet Balance"
+    wallet_balance: Float!
+
+    "Charge ID"
+    charge_id: String!
+
+    "Chargeable Type"
+    chargeable_type: String!
+
+    "Transaction Description"
+    description: String!
+
+    "Transaction Status ('default', 'pending', 'successful')"
+    status: String!
+
+    "Charges"
+    charges: Float!
+
+    "Transaction Reference"
+    reference: String!
+
+    "State of the transaction ('active' or 'archived')"
+    state: String!
+
+    "Gateway (default: 'Greep-wallet')"
+    gateway: String!
+
+    "Transaction Created At"
+    created_at: DateTime!
+
+    "Transaction Updated At"
+    updated_at: DateTime!
+}
+
+"A single wallet"
+type Wallet {
+    "Unique UUID"
+    uuid: String!
+
+    "Total Balance"
+    total_balance: Float!
+
+    "Point Balance"
+    point_balance: Float!
+
+    "Credited Amount"
+    credited_amount: Float!
+
+    "Debited Amount"
+    debited_amount: Float!
+
+    "Locked Balance"
+    locked_balance: Float!
+
+    "Credited Point Amount"
+    credited_point_amount: Float!
+
+    "Wallet State ('active' or 'archived')"
+    state: String!
+
+    "Debited Point Amount"
+    debited_point_amount: Float!
+
+    "Cash Point Balance"
+    cash_point_balance: Float!
+
+    "Cash Per Point"
+    cash_per_point: Float!
+
+    "Currency (default: 'USDC')"
+    currency: String!
+
+    "Wallet Created At"
+    created_at: DateTime!
+
+    "Wallet Updated At"
+    updated_at: DateTime!
+}

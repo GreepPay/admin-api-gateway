@@ -1,0 +1,24 @@
+type AuthResponse {
+    token: String!
+    user: User!
+}
+
+type SupportedCurrency {
+    country: String!
+    code: String!
+    currency: String!
+    supported_methods: [String!]!
+}
+
+type ExchangeRate {
+    rates: [ExchangeRateItem!]!
+}
+
+type ExchangeRateItem {
+    buy: Float!
+    sell: Float!
+    locale: String!
+    rateId: String!
+    code: String!
+    updatedAt: String!
+}

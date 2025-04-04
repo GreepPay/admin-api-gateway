@@ -1,0 +1,44 @@
+"A blockchain account"
+type Account {
+    "Unique UUID"
+    uuid: String!
+
+    "Stellar Address"
+    stellar_address: String!
+
+    "Account Type"
+    account_type: String!
+
+    "Account Created At"
+    created_at: DateTime
+
+    "Account Updated At"
+    updated_at: DateTime
+
+    "Account Status"
+    status: String!
+}
+
+"An account trustline"
+type Trustline {
+    "Unique UUID"
+    id: String!
+
+    "Account UUID"
+    account_id: String
+
+    "Asset Code"
+    asset_code: String!
+
+    "Asset Issuer"
+    asset_issuer: String!
+
+    "Trust Limit"
+    trust_limit: Float
+
+    "Trustline Created At"
+    created_at: DateTime
+
+    "Trustline Status"
+    status: String!
+}

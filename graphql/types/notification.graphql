@@ -1,0 +1,30 @@
+"A notification on Greep"
+type Notification {
+    "Unique ID"
+    id: Int!
+
+    "User UUID to whom the notification belongs"
+    auth_user_id: String!
+
+    "Notification Type: Email or Push"
+    type: String! # Use String!
+    "Notification Title"
+    title: String!
+
+    "Notification Content"
+    content: String!
+
+    "Email address if the notification is an email"
+    email: String
+
+    "Whether the notification has been read"
+    is_read: Boolean!
+
+    "Delivery status of the notification"
+    delivery_status: String! # Use String! with validation in resolvers or a custom scalar. Ideally an Enum if possible.
+    "Notification Created At"
+    created_at: DateTime!
+
+    "Notification Updated At"
+    updated_at: DateTime!
+}

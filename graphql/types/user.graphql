@@ -1,0 +1,130 @@
+"A user profile on Greep"
+type Profile {
+    "User UUID"
+    auth_user_id: String!
+
+    "User Type: Business, Rider, or Customer"
+    user_type: String!
+
+    "Profile Picture URL (optional)"
+    profile_picture: String
+
+    "Verification Status"
+    verification_status: String!
+
+    "The attached customer"
+    business: Business! @hasOne
+
+    "All attached verifications"
+    verifications: [Verification!]! @hasMany
+
+    "Profile Updated At"
+    updated_at: DateTime!
+
+    "Default Currency"
+    default_currency: String!
+
+    "Profile Created At"
+    created_at: DateTime!
+}
+
+"Business profile details."
+type Business {
+    "Unique identifier for the business."
+    id: String!
+
+    "Business name."
+    business_name: String
+
+    "Business logo URL."
+    logo: String
+
+    "Business location."
+    location: String
+
+    "Business banner URL."
+    banner: String
+
+    "Business description."
+    description: String
+
+    "Business website URL."
+    website: String
+
+    "Business resident permit document URL."
+    resident_permit: String
+
+    "Business passport document URL."
+    passport: String
+
+    "Business registration number."
+    registration_number: String
+
+    "Array of document URLs."
+    documents: [String]
+
+    "When the business profile was created."
+    created_at: DateTime!
+
+    "When the business profile was last updated."
+    updated_at: DateTime!
+
+    "Associated User Profile."
+    user_profile: Profile
+
+    "Business country"
+    country: String
+
+    "Business city"
+    city: String
+}
+
+"Verification request details."
+type Verification {
+    "Unique primary key."
+    id: ID!
+
+    "The authenticated user ID."
+    auth_user_id: String!
+
+    "The user type associated with the verification."
+    user_type: UserType!
+
+    "Type of document submitted for verification."
+    document_type: DocumentType!
+
+    "URL of the submitted document."
+    document_url: String!
+
+    "Current status of the verification request."
+    status: VerificationStatus!
+
+    "Additional verification data if needed."
+    verification_data: JSON
+
+    "When the verification request was created."
+    created_at: DateTime!
+
+    "When the verification request was last updated."
+    updated_at: DateTime!
+}
+
+# Enums
+enum UserType {
+    Business
+    Rider
+    Customer
+}
+
+enum DocumentType {
+    International_Passport
+    Resident_Permit
+    License
+    Student_ID
+}
+
+enum VerificationStatus {
+    Pending
+    Approved
+    Rejected
+}
