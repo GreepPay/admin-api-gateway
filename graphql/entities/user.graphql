@@ -1,1 +1,4 @@
-# extend type Mutation @guard {}
+extend type Query {
+    getAdminDashboardMetrics(range: String): AdminDashboardMetrics
+    @field(resolver: "UserQuery@getDashboardMetrics")
+}

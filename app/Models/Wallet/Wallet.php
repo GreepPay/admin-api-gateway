@@ -58,7 +58,7 @@ class Wallet extends Model
 
     protected $connection = "greep-wallet";
 
-    protected $table = "wallet_service.wallets";
+    // protected $table = "wallet_service.wallets";
 
     public function user(): BelongsTo
     {

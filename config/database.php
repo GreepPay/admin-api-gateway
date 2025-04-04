@@ -103,7 +103,7 @@ return [
             "charset" => "utf8",
             "prefix" => "",
             "prefix_indexes" => true,
-            "schema" => "auth_service",
+            "schema" => "public",
             "sslmode" => env("DB_SSLMODE")
                 ? env("DB_SSLMODE", "disable")
                 : null,
@@ -119,7 +119,7 @@ return [
             "charset" => "utf8",
             "prefix" => "",
             "prefix_indexes" => true,
-            "schema" => "user_service",
+            'schema' => 'public',
             "sslmode" => env("DB_SSLMODE")
                 ? env("DB_SSLMODE", "disable")
                 : null,
@@ -135,7 +135,7 @@ return [
             "charset" => "utf8",
             "prefix" => "",
             "prefix_indexes" => true,
-            "schema" => "notification_service",
+            "schema" => "public",
             "sslmode" => env("DB_SSLMODE")
                 ? env("DB_SSLMODE", "disable")
                 : null,
@@ -151,7 +151,7 @@ return [
             "charset" => "utf8",
             "prefix" => "",
             "prefix_indexes" => true,
-            "schema" => "wallet_service",
+            "schema" => "public",
             "sslmode" => env("DB_SSLMODE")
                 ? env("DB_SSLMODE", "disable")
                 : null,
@@ -167,7 +167,7 @@ return [
             "charset" => "utf8",
             "prefix" => "",
             "prefix_indexes" => true,
-            "schema" => "blockchain_service",
+            "schema" => "public",
             "sslmode" => env("DB_SSLMODE")
                 ? env("DB_SSLMODE", "disable")
                 : null,

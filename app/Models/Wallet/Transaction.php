@@ -57,7 +57,7 @@ class Transaction extends Model
     use ReadOnlyTrait;
     protected $connection = "greep-wallet";
 
-    protected $table = "wallet_service.transactions";
+    // protected $table = "wallet_service.transactions";
 
     public function user(): BelongsTo
     {

@@ -128,3 +128,35 @@ enum VerificationStatus {
     Approved
     Rejected
 }
+
+type BusinessOverview {
+  income: Float!
+  withdrawals: Float!
+  shopSales: Float!
+  fee: Float!
+}
+
+type CustomerOverview {
+  sent: Float!
+  added: Float!
+  purchases: Float!
+  fee: Float!
+}
+
+type TransactionOverview {
+  transactions: Int!
+  moneyIn: Float!
+  moneyOut: Float!
+  volume: Float!
+}
+
+type AdminDashboardMetrics {
+  totalMerchants: Int!
+  totalCustomers: Int!
+  totalTransactions: Int!
+  totalVolume: Float!
+  merchantOverview: BusinessOverview!
+  customerOverview: CustomerOverview!
+  transactionOverview: TransactionOverview!
+}
+
