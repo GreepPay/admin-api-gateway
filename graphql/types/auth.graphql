@@ -41,4 +41,14 @@ type User {
 
     "The user updated at"
     updated_at: DateTime!
+
+    role: Role @belongsTo
+}
+
+type Role {
+    id: ID!
+    name: String!
+    description: String
+    created_at: DateTime
+    updated_at: DateTime
 }

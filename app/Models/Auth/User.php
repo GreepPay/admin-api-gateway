@@ -2,9 +2,11 @@
 
 namespace App\Models\Auth;
 
+use App\Models\Auth\Role;
 use App\Models\Notification\Notification;
 use App\Models\User\Profile;
 use App\Models\Wallet\Wallet;
+use App\Traits\FiltersUsersByRoles;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
@@ -70,7 +72,7 @@ use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
  */
 class User extends Model implements AuthenticatableContract
 {
-    use ReadOnlyTrait, Authenticatable;
+    use ReadOnlyTrait, Authenticatable, FiltersUsersByRoles;
 
     protected $connection = "greep-auth";
     protected $table = "auth_service.users";
@@ -88,5 +90,10 @@ class User extends Model implements AuthenticatableContract
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
     }
 }

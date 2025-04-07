@@ -1,1 +1,16 @@
-# extend type Query @guard {}
+type Query {
+    getSingleTransaction(transaction_uuid: String!): Transaction
+        @find(model: "Transaction", key: "uuid")
+
+    getTransactions(
+        search: String
+        type: TransactionType
+        date_range: DateRangeInput
+        first: Int
+        page: Int
+    ): [Transaction!]!
+        @paginate(
+            model: "Transaction"
+            scopes: ["filterTransactions"]
+        )
+}

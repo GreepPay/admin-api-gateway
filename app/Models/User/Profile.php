@@ -38,8 +38,7 @@ use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
  */
 class Profile extends Model
 {
-    use FiltersProfilesByTypeAndQuery;
-    use ReadOnlyTrait;
+    use FiltersProfilesByTypeAndQuery, ReadOnlyTrait;
 
     protected $connection = "greep-user";
 

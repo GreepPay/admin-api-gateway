@@ -131,6 +131,8 @@ type Transaction {
 
     "Transaction Updated At"
     updated_at: DateTime!
+
+    user: User @belongsTo
 }
 
 "A single wallet"
@@ -176,4 +178,14 @@ type Wallet {
 
     "Wallet Updated At"
     updated_at: DateTime!
+}
+
+enum TransactionType {
+    credit
+    debit
+}
+
+input DateRangeInput {
+    from: DateTime
+    to: DateTime
 }
