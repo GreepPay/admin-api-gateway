@@ -5,7 +5,9 @@ namespace App\GraphQL\Queries;
 use App\Models\Wallet\Transaction;
 use App\Models\User\Business;
 use App\Models\User\Customer;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserQuery
 {

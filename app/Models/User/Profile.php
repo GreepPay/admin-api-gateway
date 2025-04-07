@@ -3,6 +3,7 @@
 namespace App\Models\User;
 
 use App\Models\Auth\User;
+use App\Traits\FiltersProfilesByTypeAndQuery;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -37,11 +38,14 @@ use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
  */
 class Profile extends Model
 {
+    use FiltersProfilesByTypeAndQuery;
     use ReadOnlyTrait;
 
     protected $connection = "greep-user";
 
     protected $table = "user_service.user_profiles";
+
+    protected $with = ['customer', 'user', 'business'];
 
     public function user(): BelongsTo
     {
@@ -57,6 +61,11 @@ class Profile extends Model
         return $this->hasOne(Customer::class, "auth_user_id", "auth_user_id");
     }
 
+    public function business(): HasOne
+    {
+        return $this->hasOne(Business::class, "auth_user_id", "auth_user_id");
+    }
+
     public function verifications(): HasMany
     {
         return $this->hasMany(
@@ -64,5 +73,17 @@ class Profile extends Model
             "auth_user_id",
             "auth_user_id"
         );
+    }
+
+    public function scopeFilterCustomers($query, $args)
+    {
+        return $query->where('user_type', 'Customer')
+            ->filterByUserTypeAndQuery($args);
+    }
+
+    public function scopeFilterBusinesses($query, $args)
+    {
+        return $query->where('user_type', 'Business')
+            ->filterByUserTypeAndQuery($args);
     }
 }

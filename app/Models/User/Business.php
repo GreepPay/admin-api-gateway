@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 
+
 /**
  *
  *
@@ -51,17 +52,18 @@ use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
 class Business extends Model
 {
     use ReadOnlyTrait;
-
     protected $connection = "greep-user";
 
     protected $table = "user_service.businesses";
 
+    protected $casts = [
+        'auth_user_id' => 'int',
+        'documents' => 'array',
+    ];
+
     public function user(): BelongsTo
     {
-        return $this->belongsTo(
-            User::class,
-            foreignKey: "auth_user_id",
-            ownerKey: "id"
-        );
+        return $this->belongsTo(User::class, 'auth_user_id');
+
     }
 }

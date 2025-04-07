@@ -1,5 +1,8 @@
 "A User in Greep"
 type User {
+    "User ID"
+    id: Int
+
     "Unique UUID"
     uuid: String!
 

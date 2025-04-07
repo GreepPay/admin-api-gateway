@@ -1,4 +1,10 @@
 extend type Query {
     getAdminDashboardMetrics(range: String): AdminDashboardMetrics
-    @field(resolver: "UserQuery@getDashboardMetrics")
+        @field(resolver: "UserQuery@getDashboardMetrics")
+
+    getCustomers(query: String): [CustomerProfile!]!
+        @paginate(model: "Profile", scopes: ["filterCustomers"])
+
+    getBusinesses(query: String): [BusinessProfile!]!
+        @paginate(model: "Profile", scopes: ["filterBusinesses"])
 }
