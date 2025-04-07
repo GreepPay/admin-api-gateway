@@ -54,7 +54,7 @@ class Business extends Model
 
     protected $connection = "greep-user";
 
-    // protected $table = "user_service.businesses";
+    protected $table = "user_service.businesses";
 
     public function user(): BelongsTo
     {

@@ -2,13 +2,12 @@
 
 namespace App\Models\Auth;
 
-use App\Models\User\UserProfile;
-use App\Models\Wallet\PointTransaction;
-use App\Models\Wallet\Transaction;
+use App\Models\Notification\Notification;
+use App\Models\User\Profile;
 use App\Models\Wallet\Wallet;
 use Illuminate\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
@@ -38,12 +37,9 @@ use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
  * @property string|null $state
  * @property string|null $country
  * @property string|null $default_currency
- * @property-read mixed|null $combined_transactions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PointTransaction> $pointTransactions
- * @property-read int|null $point_transactions_count
- * @property-read UserProfile|null $profile
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
- * @property-read int|null $transactions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read Profile|null $profile
  * @property-read Wallet|null $wallet
  * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
@@ -77,33 +73,20 @@ class User extends Model implements AuthenticatableContract
     use ReadOnlyTrait, Authenticatable;
 
     protected $connection = "greep-auth";
-
     protected $table = "auth_service.users";
 
     public function profile(): HasOne
     {
-        return $this->hasOne(UserProfile::class, "auth_user_id", "id");
+        return $this->hasOne(Profile::class, "auth_user_id", "id");
+    }
+
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class, "auth_user_id", "id");
     }
 
     public function wallet(): HasOne
     {
         return $this->hasOne(Wallet::class);
-    }
-    public function transactions(): HasMany
-    {
-        return $this->hasMany(Transaction::class, "user_id", "id");
-    }
-
-    public function pointTransactions(): HasMany
-    {
-        return $this->hasMany(PointTransaction::class, "user_id", "id");
-    }
-
-    public function getCombinedTransactionsAttribute(): mixed
-    {
-        $normal = $this->transactions;
-        $points = $this->pointTransactions;
-
-        return $normal->merge($points)->sortByDesc("created_at")->values();
     }
 }
