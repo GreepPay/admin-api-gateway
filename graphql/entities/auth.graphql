@@ -2,4 +2,6 @@ extend type Mutation {
     "Sign in a user"
     SignIn(email: String!, password: String!): AuthResponse!
         @field(resolver: "AuthMutator@signIn")
+
+    adminLogout: Boolean! @field(resolver: "AuthMutator@logout")
 }

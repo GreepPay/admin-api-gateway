@@ -1,16 +1,56 @@
-type Query {
+extend type Query {
     getSingleTransaction(transaction_uuid: String!): Transaction
         @find(model: "Transaction", key: "uuid")
 
     getTransactions(
-        search: String
-        type: TransactionType
-        date_range: DateRangeInput
-        first: Int
-        page: Int
-    ): [Transaction!]!
-        @paginate(
-            model: "Transaction"
-            scopes: ["filterTransactions"]
-        )
+        where: _
+            @whereConditions(
+                columns: [
+                    "dr_or_cr"
+                    "status"
+                    "currency"
+                    "amount"
+                    "chargeable_type"
+                    "reference"
+                ]
+            )
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Transaction!]! @paginate(model: "Transaction")
+
+    getWallets(
+        where: _ @whereConditions(columns: ["currency", "state"])
+        whereProfile: _
+            @whereHasConditions(relation: "profile", columns: ["user_type"])
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Wallet!]! @paginate(model: "Wallet")
+
+    getWalletHistory(
+        where: _ @whereConditions(columns: ["wallet_id"])
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Transaction!]! @paginate(model: "Transaction")
+
+    # getWithdrawals(
+    #     where: _ @whereConditions(columns: ["status", "reference"])
+    #     orderBy: _ @orderBy(columns: ["created_at"])
+    # ): [WithdrawalRequest!]!
+    #     @paginate(model: "WithdrawalRequest")
 }
+
+
+# extend type mutation {
+#   approveWithdrawalRequest(withdrawal_uuid: String!): WithdrawalRequest!
+#     @field(resolver: "WalletMutation@approve")
+
+#   rejectWithdrawalRequest(withdrawal_uuid: String!, reason: String): WithdrawalRequest!
+#     @field(resolver: "WalletMutation@reject")
+# }

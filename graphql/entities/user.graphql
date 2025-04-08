@@ -10,4 +10,38 @@ extend type Query {
 
     getAllUsers(roles: [String!]): [User!]!
         @paginate(model: "App\\Models\\Auth\\User", scopes: ["filterByRoles"])
+
+    getVerificationRequests(
+        status: VerificationStatus
+        first: Int
+        page: Int
+    ): [Verification!]!
+        @paginate(model: "Verification", scopes: ["filterVerificationStatus"])
+}
+
+extend type mutation {
+    freezeAccount(user_uuid: String!): Boolean!
+        @field(resolver: "UserMutator@freeze")
+
+    unfreezeAccount(user_uuid: String!): Boolean!
+        @field(resolver: "UserMutator@unfreeze")
+
+    approveRejectVerificationRequest(
+        user_uuid: String!
+        verificationId: String!
+        status: String!
+        ): Boolean!
+        @field(resolver: "UserMutator@approveReject")
+
+    makeAdmin(email: String!, role: String!): Boolean!
+        @field(resolver: "UserMutator@makeAdmin")
+
+    updateRole(uuid: String!, new_role: String!): Boolean!
+        @field(resolver: "UserMutator@updateRole")
+
+    deleteUser(user_uuid: String!): Boolean!
+        @field(resolver: "UserMutator@delete")
+
+    changeUserStatus(user_uuid: String!, status: String!): Boolean!
+        @field(resolver: "UserMutator@changeStatus")
 }
