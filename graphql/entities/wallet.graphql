@@ -47,7 +47,7 @@ extend type Query {
 }
 
 
-# extend type mutation {
+# extend type Mutation {
 #   approveWithdrawalRequest(withdrawal_uuid: String!): WithdrawalRequest!
 #     @field(resolver: "WalletMutation@approve")
 

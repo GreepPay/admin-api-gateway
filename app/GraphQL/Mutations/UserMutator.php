@@ -81,23 +81,4 @@ final class UserMutator
         return true;
     }
 
-    public function approveRject($_, array $args): bool
-    {
-        $user = User::where('uuid', $args['user_uuid'])->first();
-
-        if (!$user) {
-            throw new GraphQLException("User not found");
-        }
-
-        $payload = [
-            "verificationId" => $args["verificationId"],
-            "status" => "Approved",
-            "auth_user_id" => $user->id,
-        ];
-
-        $res = $this->userService->approveRejectVerificationRequest($payload);
-
-        return true;
-    }
-
 }

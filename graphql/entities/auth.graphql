@@ -4,4 +4,10 @@ extend type Mutation {
         @field(resolver: "AuthMutator@signIn")
 
     adminLogout: Boolean! @field(resolver: "AuthMutator@logout")
+
+    updateRole(uuid: String!, new_role: String!): Boolean!
+        @field(resolver: "AuthMutator@updateUserRole")
+
+    deleteUser(user_uuid: String!): Boolean!
+        @field(resolver: "AuthMutator@deleteUser")
 }

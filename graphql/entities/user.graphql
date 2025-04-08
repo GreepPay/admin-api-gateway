@@ -19,7 +19,7 @@ extend type Query {
         @paginate(model: "Verification", scopes: ["filterVerificationStatus"])
 }
 
-extend type mutation {
+extend type Mutation {
     freezeAccount(user_uuid: String!): Boolean!
         @field(resolver: "UserMutator@freeze")
 
@@ -32,16 +32,4 @@ extend type mutation {
         status: String!
         ): Boolean!
         @field(resolver: "UserMutator@approveReject")
-
-    makeAdmin(email: String!, role: String!): Boolean!
-        @field(resolver: "UserMutator@makeAdmin")
-
-    updateRole(uuid: String!, new_role: String!): Boolean!
-        @field(resolver: "UserMutator@updateRole")
-
-    deleteUser(user_uuid: String!): Boolean!
-        @field(resolver: "UserMutator@delete")
-
-    changeUserStatus(user_uuid: String!, status: String!): Boolean!
-        @field(resolver: "UserMutator@changeStatus")
 }
