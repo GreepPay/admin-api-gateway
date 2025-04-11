@@ -39,18 +39,19 @@ extend type Query {
         orderBy: _ @orderBy(columns: ["created_at"])
     ): [Transaction!]! @paginate(model: "Transaction")
 
-    # getWithdrawals(
-    #     where: _ @whereConditions(columns: ["status", "reference"])
-    #     orderBy: _ @orderBy(columns: ["created_at"])
-    # ): [WithdrawalRequest!]!
-    #     @paginate(model: "WithdrawalRequest")
+    getWithdrawals(
+        where: _ @whereConditions(columns: ["status", "reference"])
+        userWhere: _
+            @whereConditions(columns: ["first_name", "last_name", "email"])
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Transaction!]!
+        @paginate(model: "Transaction")
+        @where(key: "chargeable_type", value: "Withdrawal")
 }
 
-
-# extend type Mutation {
-#   approveWithdrawalRequest(withdrawal_uuid: String!): WithdrawalRequest!
-#     @field(resolver: "WalletMutation@approve")
-
-#   rejectWithdrawalRequest(withdrawal_uuid: String!, reason: String): WithdrawalRequest!
-#     @field(resolver: "WalletMutation@reject")
-# }
+extend type Mutation {
+    updateWithdrawalStatus(
+        transaction_id: ID!
+        status: String! @rules(apply: ["in:rejected,successful"])
+    ): Transaction @field(resolver: "WalletMutator@updateWithdrawalStatus")
+}

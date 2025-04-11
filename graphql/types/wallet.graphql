@@ -178,6 +178,8 @@ type Wallet {
 
     "Wallet Updated At"
     updated_at: DateTime!
+
+    user: User @belongsTo
 }
 
 enum TransactionType {
