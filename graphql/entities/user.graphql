@@ -2,11 +2,18 @@ extend type Query {
     getAdminDashboardMetrics(range: String): AdminDashboardMetrics
         @field(resolver: "UserQuery@getDashboardMetrics")
 
-    getCustomers(query: String): [CustomerProfile!]!
-        @paginate(model: "Profile", scopes: ["filterCustomers"])
+    getProfiles(
+        where: _ @whereConditions(columns: ["user_type", "created_at"])
+        userWhere: _
+            @whereConditions(columns: ["first_name", "last_name", "email"])
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Profile!]! @paginate(model: "Profile")
 
-    getBusinesses(query: String): [BusinessProfile!]!
-        @paginate(model: "Profile", scopes: ["filterBusinesses"])
+    # getCustomers(query: String): [CustomerProfile!]!
+    #     @paginate(model: "Profile", scopes: ["filterCustomers"])
+
+    # getBusinesses(query: String): [BusinessProfile!]!
+    #     @paginate(model: "Profile", scopes: ["filterBusinesses"])
 
     getAllUsers(roles: [String!]): [User!]!
         @paginate(model: "App\\Models\\Auth\\User", scopes: ["filterByRoles"])
@@ -30,6 +37,5 @@ extend type Mutation {
         user_uuid: String!
         verificationId: String!
         status: String!
-        ): Boolean!
-        @field(resolver: "UserMutator@approveReject")
+    ): Boolean! @field(resolver: "UserMutator@approveReject")
 }
