@@ -68,11 +68,12 @@ use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUuid($value)
+ * @property-read \App\Models\Auth\Role|null $role
  * @mixin \Eloquent
  */
 class User extends Model implements AuthenticatableContract
 {
-    use ReadOnlyTrait, Authenticatable, FiltersUsersByRoles;
+    use ReadOnlyTrait, Authenticatable;
 
     protected $connection = "greep-auth";
     protected $table = "auth_service.users";

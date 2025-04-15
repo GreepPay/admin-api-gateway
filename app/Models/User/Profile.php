@@ -38,7 +38,7 @@ use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
  */
 class Profile extends Model
 {
-    use FiltersProfilesByTypeAndQuery, ReadOnlyTrait;
+    use ReadOnlyTrait;
 
     protected $connection = "greep-user";
 
@@ -72,17 +72,5 @@ class Profile extends Model
             "auth_user_id",
             "auth_user_id"
         );
-    }
-
-    public function scopeFilterCustomers($query, $args)
-    {
-        return $query->where('user_type', 'Customer')
-            ->filterByUserTypeAndQuery($args);
-    }
-
-    public function scopeFilterBusinesses($query, $args)
-    {
-        return $query->where('user_type', 'Business')
-            ->filterByUserTypeAndQuery($args);
     }
 }

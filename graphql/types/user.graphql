@@ -76,6 +76,8 @@ type Verification {
 
     "When the verification request was last updated."
     updated_at: DateTime!
+
+    user: User @belongsTo
 }
 
 "A single customer profile"

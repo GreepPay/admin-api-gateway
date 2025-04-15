@@ -55,7 +55,7 @@ use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
  */
 class Transaction extends Model
 {
-    use ReadOnlyTrait, FiltersTransactions;
+    use ReadOnlyTrait;
     protected $connection = "greep-wallet";
 
     protected $table = "wallet_service.transactions";

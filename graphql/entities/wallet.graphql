@@ -1,4 +1,4 @@
-extend type Query {
+extend type Query @guard {
     getSingleTransaction(transaction_uuid: String!): Transaction
         @find(model: "Transaction", key: "uuid")
 
@@ -41,15 +41,18 @@ extend type Query {
 
     getWithdrawals(
         where: _ @whereConditions(columns: ["status", "reference"])
-        userWhere: _
-            @whereConditions(columns: ["first_name", "last_name", "email"])
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
         orderBy: _ @orderBy(columns: ["created_at"])
     ): [Transaction!]!
         @paginate(model: "Transaction")
         @where(key: "chargeable_type", value: "Withdrawal")
 }
 
-extend type Mutation {
+extend type Mutation @guard {
     updateWithdrawalStatus(
         transaction_id: ID!
         status: String! @rules(apply: ["in:rejected,successful"])

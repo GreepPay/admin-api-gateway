@@ -1,32 +1,31 @@
-extend type Query {
+extend type Query @guard {
     getAdminDashboardMetrics(range: String): AdminDashboardMetrics
         @field(resolver: "UserQuery@getDashboardMetrics")
 
     getProfiles(
         where: _ @whereConditions(columns: ["user_type", "created_at"])
-        userWhere: _
-            @whereConditions(columns: ["first_name", "last_name", "email"])
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        whereUserRole: _
+            @whereHasConditions(relation: "user.role", columns: ["name"])
         orderBy: _ @orderBy(columns: ["created_at"])
     ): [Profile!]! @paginate(model: "Profile")
 
-    # getCustomers(query: String): [CustomerProfile!]!
-    #     @paginate(model: "Profile", scopes: ["filterCustomers"])
-
-    # getBusinesses(query: String): [BusinessProfile!]!
-    #     @paginate(model: "Profile", scopes: ["filterBusinesses"])
-
-    getAllUsers(roles: [String!]): [User!]!
-        @paginate(model: "App\\Models\\Auth\\User", scopes: ["filterByRoles"])
-
     getVerificationRequests(
-        status: VerificationStatus
-        first: Int
-        page: Int
-    ): [Verification!]!
-        @paginate(model: "Verification", scopes: ["filterVerificationStatus"])
+        where: _ @whereConditions(columns: ["status", "created_at"])
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Verification!]! @paginate(model: "Verification")
 }
 
-extend type Mutation {
+extend type Mutation @guard {
     freezeAccount(user_uuid: String!): Boolean!
         @field(resolver: "UserMutator@freeze")
 
