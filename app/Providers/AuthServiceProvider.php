@@ -10,21 +10,11 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
     public function register()
     {
         //
     }
 
-    /**
-     * Boot the authentication services for the application.
-     *
-     * @return void
-     */
     public function boot()
     {
         Auth::extend("custom", function ($app, $name, array $config) {
@@ -40,10 +30,21 @@ class AuthServiceProvider extends ServiceProvider
                     $response = $authService->authUser();
 
                     if (!$response || empty($response["data"])) {
-                        return null;
+                        abort(401, 'Invalid or expired token.');
                     }
 
-                    $user = User::where("id", $response["data"]["id"])->first();
+                    $user = User::with('role')->where("id", $response["data"]["id"])->first();
+
+                    if (!$user) {
+                        abort(401, 'User not found.');
+                    }
+
+                    $roleName = strtolower(optional($user->role)->name ?? '');
+
+                    if (!in_array($roleName, ['admin', 'super-admin'])) {
+                        abort(403, 'Only admin or super-admin can access this resource.');
+                    }
+
                     return $user;
                 },
                 $app["request"],
