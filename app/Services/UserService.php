@@ -83,4 +83,9 @@ class UserService
     {
         return $this->userNetwork->post("/v1/verifications", $request);
     }
+
+    public function approveRejectVerificationRequest(array $request)
+    {
+        return $this->userNetwork->put("/v1/verification/approve", $request);
+    }
 }

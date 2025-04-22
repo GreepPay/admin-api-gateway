@@ -1,1 +1,60 @@
-# extend type Query @guard {}
+extend type Query @guard {
+    getSingleTransaction(transaction_uuid: String!): Transaction
+        @find(model: "Transaction", key: "uuid")
+
+    getTransactions(
+        where: _
+            @whereConditions(
+                columns: [
+                    "dr_or_cr"
+                    "status"
+                    "currency"
+                    "amount"
+                    "chargeable_type"
+                    "reference"
+                ]
+            )
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Transaction!]! @paginate(model: "Transaction")
+
+    getWallets(
+        where: _ @whereConditions(columns: ["currency", "state"])
+        whereProfile: _
+            @whereHasConditions(relation: "profile", columns: ["user_type"])
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Wallet!]! @paginate(model: "Wallet")
+
+    getWalletHistory(
+        where: _ @whereConditions(columns: ["wallet_id"])
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Transaction!]! @paginate(model: "Transaction")
+
+    getWithdrawals(
+        where: _ @whereConditions(columns: ["status", "reference"])
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Transaction!]!
+        @paginate(model: "Transaction")
+        @where(key: "chargeable_type", value: "Withdrawal")
+}
+
+extend type Mutation @guard {
+    updateWithdrawalStatus(
+        transaction_id: ID!
+        status: String! @rules(apply: ["in:rejected,successful"])
+    ): Transaction @field(resolver: "WalletMutator@updateWithdrawalStatus")
+}

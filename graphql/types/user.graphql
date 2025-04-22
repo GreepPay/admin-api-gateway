@@ -1,37 +1,9 @@
-"A user profile on Greep"
-type Profile {
-    "User UUID"
-    auth_user_id: String!
-
-    "User Type: Business, Rider, or Customer"
-    user_type: String!
-
-    "Profile Picture URL (optional)"
-    profile_picture: String
-
-    "Verification Status"
-    verification_status: String!
-
-    "The attached customer"
-    business: Business! @hasOne
-
-    "All attached verifications"
-    verifications: [Verification!]! @hasMany
-
-    "Profile Updated At"
-    updated_at: DateTime!
-
-    "Default Currency"
-    default_currency: String!
-
-    "Profile Created At"
-    created_at: DateTime!
-}
-
 "Business profile details."
 type Business {
     "Unique identifier for the business."
     id: String!
+
+    auth_user_id: String
 
     "Business name."
     business_name: String
@@ -69,9 +41,6 @@ type Business {
     "When the business profile was last updated."
     updated_at: DateTime!
 
-    "Associated User Profile."
-    user_profile: Profile
-
     "Business country"
     country: String
 
@@ -107,6 +76,81 @@ type Verification {
 
     "When the verification request was last updated."
     updated_at: DateTime!
+
+    user: User @belongsTo
+}
+
+"A single customer profile"
+type Customer {
+    "Unique ID"
+    id: String!
+
+    "Location"
+    location: String
+
+    "Resident Permit"
+    resident_permit: String
+
+    "Passport"
+    passport: String
+
+    "Student ID"
+    student_id: String
+
+    "Country"
+    country: String
+
+    "City"
+    city: String
+
+    "Notification Preferences"
+    notification_preferences: String!
+
+    "Profile Created At"
+    created_at: DateTime!
+
+    "Profile Updated At"
+    updated_at: DateTime!
+}
+
+type Profile {
+  auth_user_id: String!
+  user_type: UserType!
+  profile_picture: String
+  verification_status: VerificationStatus!
+  default_currency: String
+  created_at: DateTime!
+  updated_at: DateTime!
+  user: User
+  customer: Customer
+  business: Business
+  verifications: [Verification!]!
+}
+
+type BusinessProfile {
+  auth_user_id: String!
+  user_type: String!
+  profile_picture: String
+  verification_status: String!
+  business: Business
+  verifications: [Verification!]!
+  updated_at: DateTime!
+  default_currency: String!
+  created_at: DateTime!
+  user: User
+}
+
+type CustomerProfile {
+  auth_user_id: String!
+  user_type: String!
+  profile_picture: String
+  verification_status: String!
+  customer: Customer
+  verifications: [Verification!]!
+  updated_at: DateTime!
+  default_currency: String!
+  created_at: DateTime!
+  user: User
 }
 
 # Enums
@@ -128,3 +172,37 @@ enum VerificationStatus {
     Approved
     Rejected
 }
+
+type BusinessOverview {
+  income: Float!
+  withdrawals: Float!
+  shopSales: Float!
+  fee: Float!
+}
+
+type CustomerOverview {
+  sent: Float!
+  added: Float!
+  purchases: Float!
+  fee: Float!
+}
+
+type TransactionOverview {
+  transactions: Int!
+  moneyIn: Float!
+  moneyOut: Float!
+  volume: Float!
+}
+
+type AdminDashboardMetrics {
+  totalMerchants: Int!
+  totalCustomers: Int!
+  totalTransactions: Int!
+  totalVolume: Float!
+  merchantOverview: BusinessOverview!
+  customerOverview: CustomerOverview!
+  transactionOverview: TransactionOverview!
+}
+
+union ProfileUnion = CustomerProfile | BusinessProfile
+

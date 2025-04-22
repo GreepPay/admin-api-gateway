@@ -3,6 +3,7 @@
 namespace App\Models\Wallet;
 
 use App\Models\Auth\User;
+use App\Traits\FiltersTransactions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;

@@ -3,6 +3,7 @@
 namespace App\Models\Wallet;
 
 use App\Models\Auth\User;
+use App\Models\User\Profile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
@@ -64,4 +65,10 @@ class Wallet extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function profile()
+    {
+        return $this->hasOne(Profile::class, 'auth_user_id', 'user_id');
+    }
+
 }

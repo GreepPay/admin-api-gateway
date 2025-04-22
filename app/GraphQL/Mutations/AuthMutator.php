@@ -65,11 +65,19 @@ final class AuthMutator
             "password" => $args["password"],
         ]);
 
+        $user = User::with('role')
+            ->where("id", $userAuth["data"]["user"]["id"])
+            ->firstOrFail();
+
+        $allowedRoles = ['admin', 'super-admin'];
+
+        if (!in_array(strtolower($user->role->name ?? ''), $allowedRoles)) {
+            throw new GraphQLException("Unauthorized: only admins can log in here.");
+        }
+
         return [
             "token" => $userAuth["data"]["token"],
-            "user" => User::query()
-                ->where("id", $userAuth["data"]["user"]["id"])
-                ->first(),
+            "user" => $user,
         ];
     }
 
@@ -231,5 +239,17 @@ final class AuthMutator
     public function deleteUser($_, array $args): mixed
     {
         return $this->authService->deleteUser($args["id"]);
+    }
+
+    public function updateUserRole($_, array $args): bool
+    {
+        $payload = [
+            'userUuid' => $args['uuid'],
+            'roleName' => $args['role'],
+        ];
+
+        $response = $this->authService->updateUserRole($payload);
+
+        return isset($response['statusCode']) && $response['statusCode'] === 200;
     }
 }

@@ -1,1 +1,40 @@
-# extend type Mutation @guard {}
+extend type Query @guard {
+    getAdminDashboardMetrics(range: String): AdminDashboardMetrics
+        @field(resolver: "UserQuery@getDashboardMetrics")
+
+    getProfiles(
+        where: _ @whereConditions(columns: ["user_type", "created_at"])
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        whereUserRole: _
+            @whereHasConditions(relation: "user.role", columns: ["name"])
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Profile!]! @paginate(model: "Profile")
+
+    getVerificationRequests(
+        where: _ @whereConditions(columns: ["status", "created_at"])
+        whereUser: _
+            @whereHasConditions(
+                relation: "user"
+                columns: ["first_name", "last_name", "email"]
+            )
+        orderBy: _ @orderBy(columns: ["created_at"])
+    ): [Verification!]! @paginate(model: "Verification")
+}
+
+extend type Mutation @guard {
+    freezeAccount(user_uuid: String!): Boolean!
+        @field(resolver: "UserMutator@freeze")
+
+    unfreezeAccount(user_uuid: String!): Boolean!
+        @field(resolver: "UserMutator@unfreeze")
+
+    approveRejectVerificationRequest(
+        user_uuid: String!
+        verificationId: String!
+        status: String!
+    ): Boolean! @field(resolver: "UserMutator@approveReject")
+}
