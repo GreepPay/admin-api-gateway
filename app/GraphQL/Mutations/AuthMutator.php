@@ -68,7 +68,7 @@ final class AuthMutator
         $user = User::with('role')
             ->where("id", $userAuth["data"]["user"]["id"])
             ->firstOrFail();
-            
+
         $allowedRoles = ['admin', 'super-admin'];
 
         if (!in_array(strtolower($user->role->name ?? ''), $allowedRoles)) {
@@ -241,8 +241,15 @@ final class AuthMutator
         return $this->authService->deleteUser($args["id"]);
     }
 
-    public function updateUserRole($_, array $args): mixed
+    public function updateUserRole($_, array $args): bool
     {
-        return $this->authService->updateAuthUserProfile($args["id"]);
+        $payload = [
+            'userUuid' => $args['uuid'],
+            'roleName' => $args['role'],
+        ];
+
+        $response = $this->authService->updateUserRole($payload);
+
+        return isset($response['statusCode']) && $response['statusCode'] === 200;
     }
 }

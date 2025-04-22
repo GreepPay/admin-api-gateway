@@ -145,4 +145,18 @@ class AuthService
     {
         return $this->authNetwork->get("/v1/auth/user-can/{$permission_name}");
     }
+
+    /**
+     * Send role update request to auth service
+     *
+     * @param array $request {
+     *     @type string $userUuid
+     *     @type string $roleName
+     * }
+     * @return array
+     */
+    public function updateUserRole(array $request): array
+    {
+        return $this->authNetwork->post("/v1/auth/update-role", $request);
+    }
 }
