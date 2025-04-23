@@ -87,11 +87,24 @@ class UserQuery
      */
     protected function merchantOverview($query): array
     {
+        $baseQuery = (clone $query)->whereProfileType('Business');
+
         return [
-            'income' => 0.0,
-            'withdrawals' => 0.0,
-            'shopSales' => 0.0,
-            'fee' => 0.0,
+            'income' => (clone $baseQuery)
+                // ->where('chargeable_type', 'Sale')
+                ->where('dr_or_cr', 'credit')
+                ->sum('amount'),
+
+            'withdrawals' => (clone $baseQuery)
+                // ->where('chargeable_type', 'Withdrawal')
+                ->where('dr_or_cr', 'debit')
+                ->sum('amount'),
+
+            'shopSales' => (clone $baseQuery)
+                ->whereIn('chargeable_type', ['Sale', 'POS'])
+                ->sum('amount'),
+
+            'fee' => (clone $baseQuery)->sumCharges(),
         ];
     }
 
@@ -110,11 +123,25 @@ class UserQuery
      */
     protected function customerOverview($query): array
     {
+        $baseQuery = (clone $query)->whereProfileType('Customer');
+
         return [
-            'sent' => 0.0,
-            'added' => 0.0,
-            'purchases' => 0.0,
-            'fee' => 0.0,
+            'sent' => (clone $baseQuery)
+                // ->where('chargeable_type', 'Transfer')
+                ->where('dr_or_cr', 'debit')
+                ->sum('amount'),
+
+            'added' => (clone $baseQuery)
+                // ->whereIn('chargeable_type', ['Deposit', 'Topup'])
+                ->where('dr_or_cr', 'credit')
+                ->sum('amount'),
+
+            'purchases' => (clone $baseQuery)
+                ->where('chargeable_type', 'Purchase')
+                ->where('dr_or_cr', 'debit')
+                ->sum('amount'),
+
+            'fee' => (clone $baseQuery)->sumCharges(),
         ];
     }
 
