@@ -5,11 +5,11 @@ extend type Mutation {
 }
 
 extend type Mutation @guard {
-    adminLogout: Boolean! @field(resolver: "AuthMutator@logout")
+    AdminLogout: Boolean! @field(resolver: "AuthMutator@logout")
 
-    updateUserRole(uuid: String!, role: String!): Boolean!
+    UpdateUserRole(uuid: String!, role: String!): Boolean!
         @field(resolver: "AuthMutator@updateUserRole")
 
-    deleteUser(user_uuid: String!): Boolean!
+    DeleteUser(user_uuid: String!): Boolean!
         @field(resolver: "AuthMutator@deleteUser")
 }

@@ -1,8 +1,8 @@
 extend type Query @guard {
-    getSingleTransaction(transaction_uuid: String!): Transaction
+    GetSingleTransaction(transaction_uuid: String!): Transaction
         @find(model: "Transaction", key: "uuid")
 
-    getTransactions(
+    GetTransactions(
         where: _
             @whereConditions(
                 columns: [
@@ -22,7 +22,7 @@ extend type Query @guard {
         orderBy: _ @orderBy(columns: ["created_at"])
     ): [Transaction!]! @paginate(model: "Transaction")
 
-    getWallets(
+    GetWallets(
         where: _ @whereConditions(columns: ["currency", "state"])
         whereProfile: _
             @whereHasConditions(relation: "profile", columns: ["user_type"])
@@ -34,12 +34,12 @@ extend type Query @guard {
         orderBy: _ @orderBy(columns: ["created_at"])
     ): [Wallet!]! @paginate(model: "Wallet")
 
-    getWalletHistory(
+    GetWalletHistory(
         where: _ @whereConditions(columns: ["wallet_id"])
         orderBy: _ @orderBy(columns: ["created_at"])
     ): [Transaction!]! @paginate(model: "Transaction")
 
-    getWithdrawals(
+    GetWithdrawals(
         where: _ @whereConditions(columns: ["status", "reference"])
         whereUser: _
             @whereHasConditions(
@@ -53,7 +53,7 @@ extend type Query @guard {
 }
 
 extend type Mutation @guard {
-    updateWithdrawalStatus(
+    UpdateWithdrawalStatus(
         transaction_id: ID!
         status: String! @rules(apply: ["in:rejected,successful"])
     ): Transaction @field(resolver: "WalletMutator@updateWithdrawalStatus")

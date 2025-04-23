@@ -21,24 +21,6 @@ final class NotificationMutator
     }
 
     /**
-     * Save a push notification token for the authenticated user.
-     *
-     * @param  mixed  $_      The root value (not used in this case).
-     * @param  array  $args   The arguments passed to the mutation, containing device_token and device_type.
-     *
-     * @return bool  True if the token was saved successfully, false otherwise.
-     */
-    public function savePushNotificationToken($_, array $args): bool
-    {
-        $data = $this->notificationService->updateDeviceToken([
-            "device_token" => $args["device_token"],
-            "device_type" => $args["device_type"],
-        ]);
-
-        return true;
-    }
-
-    /**
      * Mark specified notifications as read for the authenticated user.
      *
      * @param  mixed  $_      The root value (not used in this case).

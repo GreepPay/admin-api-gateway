@@ -1,8 +1,8 @@
 extend type Query @guard {
-    getAdminDashboardMetrics(range: String): AdminDashboardMetrics
+    GetAdminDashboardMetrics(range: String): AdminDashboardMetrics
         @field(resolver: "UserQuery@getDashboardMetrics")
 
-    getProfiles(
+    GetProfiles(
         where: _ @whereConditions(columns: ["user_type", "created_at"])
         whereUser: _
             @whereHasConditions(
@@ -14,7 +14,7 @@ extend type Query @guard {
         orderBy: _ @orderBy(columns: ["created_at"])
     ): [Profile!]! @paginate(model: "Profile")
 
-    getVerificationRequests(
+    GetVerificationRequests(
         where: _ @whereConditions(columns: ["status", "created_at"])
         whereUser: _
             @whereHasConditions(
@@ -26,13 +26,13 @@ extend type Query @guard {
 }
 
 extend type Mutation @guard {
-    freezeAccount(user_uuid: String!): Boolean!
+    FreezeAccount(user_uuid: String!): Boolean!
         @field(resolver: "UserMutator@freeze")
 
-    unfreezeAccount(user_uuid: String!): Boolean!
+    UnfreezeAccount(user_uuid: String!): Boolean!
         @field(resolver: "UserMutator@unfreeze")
 
-    approveRejectVerificationRequest(
+    ApproveRejectVerificationRequest(
         user_uuid: String!
         verificationId: String!
         status: String!

@@ -4,12 +4,6 @@ extend type Query @guard {
 }
 
 extend type Mutation @guard {
-    "Save a push notification token for the authenticated user."
-    SavePushNotificationToken(
-        device_token: String!
-        device_type: String!
-    ): Boolean @field(resolver: "NotificationMutator@savePushNotificationToken")
-
     "Mark specific notifications as read for the authenticated user."
     MarkNotificationsAsRead(notification_ids: [Int!]!): Boolean
         @field(resolver: "NotificationMutator@markNotificationsAsRead")
