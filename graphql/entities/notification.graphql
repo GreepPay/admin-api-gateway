@@ -1,5 +1,4 @@
 extend type Query @guard {
-    "Get a paginated list of notifications for the authenticated user"
     GetNotifications: [Notification!]! @paginate @whereAuth(relation: "user")
 }
 
