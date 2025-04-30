@@ -45,13 +45,13 @@ class AuthServiceProvider extends ServiceProvider
                         ->with('role')
                         ->first();
 
-                    if (!$user || !isset($user->role->name)) {
-                        return null;
-                    }
+                    // if (!$user || !isset($user->role->name)) {
+                    //     return null;
+                    // }
 
-                    if (strtolower(trim($user->role->name)) !== 'admin') {
-                        throw new GraphQLException("Unauthorized. Only admin can access this resource.");
-                    }
+                    // if (strtolower(trim($user->role->name)) !== 'admin') {
+                    //     throw new GraphQLException("Unauthorized. Only admin can access this resource.");
+                    // }
 
                     return $user;
                 },
