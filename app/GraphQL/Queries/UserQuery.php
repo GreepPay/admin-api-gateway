@@ -2,40 +2,50 @@
 
 namespace App\GraphQL\Queries;
 
+use App\Models\Auth\User;
 use App\Models\Wallet\Transaction;
 use App\Models\User\Business;
 use App\Models\User\Customer;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class UserQuery
 {
     /**
-     * Get admin dashboard metrics including total user counts, transaction volume,
-     * and summarized financial overviews for merchants and customers.
+     * Get the currently authenticated user.
      *
-     * @param  mixed  $_     The parent resolver. Not used in this query.
-     * @param  array  $args  Query arguments. Supports:
-     *                       - range: (string) one of 'daily', 'weekly', 'monthly', or omitted for all-time.
+     * @param  mixed  $_
+     * @param  array  $args
+     * @return User|null
+     */
+    public function getAuthUser($_, array $args): ?User
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            return $user;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get general overview metrics for the admin dashboard.
      *
+     * @param  mixed  $_
+     * @param  array  $args ['range' => string|null]
      * @return array{
      *     totalMerchants: int,
      *     totalCustomers: int,
      *     totalTransactions: int,
-     *     totalVolume: float,
-     *     merchantOverview: array,
-     *     customerOverview: array,
-     *     transactionOverview: array
-     * } A comprehensive summary of metrics for the admin dashboard.
+     *     totalVolume: float
+     * }
      */
-    public function getDashboardMetrics($_, array $args)
+    public function getGeneralOverview($_, array $args)
     {
         $range = $args['range'] ?? 'all';
         $dateRange = $this->resolveDateRange($range);
 
         $transactions = Transaction::query();
-
         if ($dateRange) {
             $transactions->whereBetween('created_at', $dateRange);
         }
@@ -45,20 +55,83 @@ class UserQuery
             'totalCustomers' => Customer::count(),
             'totalTransactions' => (clone $transactions)->count(),
             'totalVolume' => (clone $transactions)->sum('amount'),
-
-            'merchantOverview' => $this->merchantOverview(clone $transactions),
-            'customerOverview' => $this->customerOverview(clone $transactions),
-            'transactionOverview' => $this->transactionOverview(clone $transactions),
         ];
     }
 
     /**
-     * Resolve a date range based on a string keyword.
+     * Get merchant-specific financial metrics.
      *
-     * @param  string $range  Time range keyword. Supported values: 'daily', 'weekly', 'monthly', or 'all'.
+     * @param  mixed  $_
+     * @param  array  $args ['range' => string|null]
+     * @return array{
+     *     income: float,
+     *     withdrawals: float,
+     *     shopSales: float,
+     *     fee: float
+     * }
+     */
+    public function getMerchantOverview($_, array $args)
+    {
+        $range = $args['range'] ?? 'all';
+        $query = Transaction::query();
+        if ($rangeData = $this->resolveDateRange($range)) {
+            $query->whereBetween('created_at', $rangeData);
+        }
+
+        return $this->merchantOverview($query);
+    }
+
+    /**
+     * Get customer-specific financial metrics.
      *
+     * @param  mixed  $_
+     * @param  array  $args ['range' => string|null]
+     * @return array{
+     *     sent: float,
+     *     added: float,
+     *     purchases: float,
+     *     fee: float
+     * }
+     */
+    public function getCustomerOverview($_, array $args)
+    {
+        $range = $args['range'] ?? 'all';
+        $query = Transaction::query();
+        if ($rangeData = $this->resolveDateRange($range)) {
+            $query->whereBetween('created_at', $rangeData);
+        }
+
+        return $this->customerOverview($query);
+    }
+
+    /**
+     * Get overall transaction flow metrics.
+     *
+     * @param  mixed  $_
+     * @param  array  $args ['range' => string|null]
+     * @return array{
+     *     transactions: int,
+     *     moneyIn: float,
+     *     moneyOut: float,
+     *     volume: float
+     * }
+     */
+    public function getTransactionOverview($_, array $args)
+    {
+        $range = $args['range'] ?? 'all';
+        $query = Transaction::query();
+        if ($rangeData = $this->resolveDateRange($range)) {
+            $query->whereBetween('created_at', $rangeData);
+        }
+
+        return $this->transactionOverview($query);
+    }
+
+    /**
+     * Resolve a date range from a keyword.
+     *
+     * @param  string $range
      * @return array{0: \Illuminate\Support\Carbon, 1: \Illuminate\Support\Carbon}|null
-     *         A two-element Carbon date range array, or null for all-time.
      */
     protected function resolveDateRange(string $range): ?array
     {
@@ -73,89 +146,46 @@ class UserQuery
     }
 
     /**
-     * Compute merchant-specific financial summary.
-     * NOTE: Placeholder values used since transaction types are not defined in the schema.
+     * Generate metrics for merchant transactions.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $query  A base transaction query builder.
-     *
-     * @return array{
-     *     income: float,
-     *     withdrawals: float,
-     *     shopSales: float,
-     *     fee: float
-     * } A summary of merchant-related metrics (stubbed).
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @return array{income: float, withdrawals: float, shopSales: float, fee: float}
      */
     protected function merchantOverview($query): array
     {
         $baseQuery = (clone $query)->whereProfileType('Business');
 
         return [
-            'income' => (clone $baseQuery)
-                // ->where('chargeable_type', 'Sale')
-                ->where('dr_or_cr', 'credit')
-                ->sum('amount'),
-
-            'withdrawals' => (clone $baseQuery)
-                // ->where('chargeable_type', 'Withdrawal')
-                ->where('dr_or_cr', 'debit')
-                ->sum('amount'),
-
-            'shopSales' => (clone $baseQuery)
-                ->whereIn('chargeable_type', ['Sale', 'POS'])
-                ->sum('amount'),
-
+            'income' => (clone $baseQuery)->where('dr_or_cr', 'credit')->sum('amount'),
+            'withdrawals' => (clone $baseQuery)->where('dr_or_cr', 'debit')->sum('amount'),
+            'shopSales' => (clone $baseQuery)->whereIn('chargeable_type', ['Sale', 'POS'])->sum('amount'),
             'fee' => (clone $baseQuery)->sumCharges(),
         ];
     }
 
     /**
-     * Compute customer-specific financial summary.
-     * NOTE: Placeholder values used since transaction types are not defined in the schema.
+     * Generate metrics for customer transactions.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $query  A base transaction query builder.
-     *
-     * @return array{
-     *     sent: float,
-     *     added: float,
-     *     purchases: float,
-     *     fee: float
-     * } A summary of customer-related metrics (stubbed).
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @return array{sent: float, added: float, purchases: float, fee: float}
      */
     protected function customerOverview($query): array
     {
         $baseQuery = (clone $query)->whereProfileType('Customer');
 
         return [
-            'sent' => (clone $baseQuery)
-                // ->where('chargeable_type', 'Transfer')
-                ->where('dr_or_cr', 'debit')
-                ->sum('amount'),
-
-            'added' => (clone $baseQuery)
-                // ->whereIn('chargeable_type', ['Deposit', 'Topup'])
-                ->where('dr_or_cr', 'credit')
-                ->sum('amount'),
-
-            'purchases' => (clone $baseQuery)
-                ->where('chargeable_type', 'Purchase')
-                ->where('dr_or_cr', 'debit')
-                ->sum('amount'),
-
+            'sent' => (clone $baseQuery)->where('dr_or_cr', 'debit')->sum('amount'),
+            'added' => (clone $baseQuery)->where('dr_or_cr', 'credit')->sum('amount'),
+            'purchases' => (clone $baseQuery)->where('chargeable_type', 'Purchase')->where('dr_or_cr', 'debit')->sum('amount'),
             'fee' => (clone $baseQuery)->sumCharges(),
         ];
     }
 
     /**
-     * Compute overall transaction statistics, including counts and flow direction.
+     * Generate overall transaction flow metrics.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $query  A base transaction query builder.
-     *
-     * @return array{
-     *     transactions: int,
-     *     moneyIn: float,
-     *     moneyOut: float,
-     *     volume: float
-     * } A summary of overall transaction activity.
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @return array{transactions: int, moneyIn: float, moneyOut: float, volume: float}
      */
     protected function transactionOverview($query): array
     {

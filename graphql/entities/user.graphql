@@ -1,6 +1,12 @@
 extend type Query @guard {
-    GetAdminDashboardMetrics(range: String): AdminDashboardMetrics
-        @field(resolver: "UserQuery@getDashboardMetrics")
+    GetGeneralOverview(range: String): GeneralOverview!
+        @field(resolver: "UserQuery@getGeneralOverview")
+    GetMerchantOverview(range: String): BusinessOverview!
+        @field(resolver: "UserQuery@getMerchantOverview")
+    GetCustomerOverview(range: String): CustomerOverview!
+        @field(resolver: "UserQuery@getCustomerOverview")
+    GetTransactionOverview(range: String): TransactionOverview!
+        @field(resolver: "UserQuery@getTransactionOverview")
 
     GetProfiles(
         where: _ @whereConditions(columns: ["user_type", "created_at"])

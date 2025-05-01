@@ -1,3 +1,9 @@
+# Auth Queries
+extend type Query {
+    "Get the authenticated user"
+    GetAuthUser: User @field(resolver: "UserQuery@getAuthUser")
+}
+
 extend type Mutation {
     "Sign up a new user"
     SignUp(

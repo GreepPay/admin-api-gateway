@@ -195,14 +195,11 @@ type TransactionOverview {
   volume: Float!
 }
 
-type AdminDashboardMetrics {
+type GeneralOverview {
   totalMerchants: Int!
   totalCustomers: Int!
   totalTransactions: Int!
   totalVolume: Float!
-  merchantOverview: BusinessOverview!
-  customerOverview: CustomerOverview!
-  transactionOverview: TransactionOverview!
 }
 
 union ProfileUnion = CustomerProfile | BusinessProfile
