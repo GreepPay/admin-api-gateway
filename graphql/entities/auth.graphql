@@ -1,4 +1,15 @@
 extend type Mutation {
+    "Sign up a new user"
+    SignUp(
+        first_name: String!
+        last_name: String!
+        email: String!
+        password: String!
+        state: String!
+        country: String!
+        default_currency: String!
+    ): User! @field(resolver: "AuthMutator@signUp")
+
     "Sign in a user"
     SignIn(email: String!, password: String!): AuthResponse!
         @field(resolver: "AuthMutator@signIn")

@@ -158,6 +158,7 @@ enum UserType {
     Business
     Rider
     Customer
+    Admin
 }
 
 enum DocumentType {

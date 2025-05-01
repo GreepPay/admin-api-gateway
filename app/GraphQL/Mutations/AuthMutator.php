@@ -65,13 +65,13 @@ final class AuthMutator
             "password" => $args["password"],
         ]);
 
-        $user = User::with('role')
+        $user = User::with('profile')
             ->where("id", $userAuth["data"]["user"]["id"])
             ->firstOrFail();
 
-        $allowedRoles = ['admin', 'super-admin'];
+        $allowedUserTypes = ['Admin'];
 
-        if (!in_array(strtolower($user->role->name ?? ''), $allowedRoles)) {
+        if (!in_array($user->profile->user_type ?? '', $allowedUserTypes)) {
             throw new GraphQLException("Unauthorized: only admins can log in here.");
         }
 
@@ -79,6 +79,44 @@ final class AuthMutator
             "token" => $userAuth["data"]["token"],
             "user" => $user,
         ];
+    }
+
+    /**
+     * Sign up a new user.
+     *
+     * @param mixed $_
+     * @param array $args
+     * @return array
+     */
+
+    public function signUp($_, array $args): User
+    {
+        // Create a new user in auth service
+        $authUser = $this->authService->saveUser([
+            "firstName" => $args["first_name"],
+            "lastName" => $args["last_name"],
+            "email" => $args["email"],
+            "password" => $args["password"],
+            "role" => "Admin",
+        ]);
+
+        $authUser = $authUser["data"];
+
+        // Create a default profile for the user
+        $this->userService->createProfile([
+            "user_type" => "Admin",
+            "auth_user_id" => $authUser["id"],
+            "default_currency" => $args["default_currency"],
+            "profileData" => [
+                "country" => $args["country"],
+                "city" => $args["state"],
+            ],
+        ]);
+
+        // Send a verify email notification to the user
+        // TODO: Implement email verification notification
+
+        return User::query()->where("id", $authUser["id"])->first();
     }
 
     /**
@@ -250,6 +288,6 @@ final class AuthMutator
 
         $response = $this->authService->updateUserRole($payload);
 
-        return isset($response['statusCode']) && $response['statusCode'] === 200;
+        return true;
     }
 }

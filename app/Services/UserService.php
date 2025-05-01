@@ -18,7 +18,7 @@ class UserService
      * @return mixed
      */
     public function __construct(
-        bool $useCache = true,
+        bool $useCache = false,
         array $headers = [],
         string $apiType = "graphql"
     ) {
