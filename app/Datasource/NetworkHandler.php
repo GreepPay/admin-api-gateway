@@ -54,7 +54,7 @@ class NetworkHandler
     public function __construct(
         string $service,
         string $service_url,
-        bool $defaultCache = true,
+        bool $defaultCache = false,
         array $headers = [],
         string $apiType = "rest",
         bool $ignoreService = false
@@ -219,7 +219,7 @@ class NetworkHandler
     public function get(
         string $path,
         string $params = "",
-        bool $cacheable = true
+        bool $cacheable = false
     ) {
         $fullUrl = $this->service_url . $path . $params;
 
