@@ -13,6 +13,7 @@ use App\Services\WalletService;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Str;
 
 final class AuthMutator
 {
@@ -91,32 +92,70 @@ final class AuthMutator
 
     public function signUp($_, array $args): User
     {
-        // Create a new user in auth service
+        $otp = rand(100000, 999999);
+
         $authUser = $this->authService->saveUser([
-            "firstName" => $args["first_name"],
-            "lastName" => $args["last_name"],
+            "firstName" => "Pending",
+            "lastName" => "Activation",
             "email" => $args["email"],
-            "password" => $args["password"],
+            "password" => bcrypt(Str::random(12)),
             "role" => "Admin",
-        ]);
+            "otp" => $otp,
+        ])["data"];
 
-        $authUser = $authUser["data"];
-
-        // Create a default profile for the user
         $this->userService->createProfile([
             "user_type" => "Admin",
             "auth_user_id" => $authUser["id"],
-            "default_currency" => $args["default_currency"],
+            "default_currency" => "USD",
             "profileData" => [
-                "country" => $args["country"],
-                "city" => $args["state"],
+                "country" => null,
+                "city" => null,
             ],
         ]);
 
-        // Send a verify email notification to the user
-        // TODO: Implement email verification notification
+        // Send OTP notification
+        $this->notificationService->sendNotification([
+            "auth_user_id" => $authUser["id"],
+            "type" => "email",
+            "email" => $authUser["email"],
+            "title" => "Admin Account Activation",
+            "content" => "Hello Admin, your OTP is $otp. Use it to activate your account.",
+            "template_id" => 1,
+            "template_data" => [
+                "username" => "Admin",
+                "otp" => $otp,
+            ]
+        ]);
 
         return User::query()->where("id", $authUser["id"])->first();
+    }
+
+    public function activateAdminAccount($_, array $args): User
+    {
+        $user = User::where('email', $args['email'])->firstOrFail();
+
+        if (
+            !$user->otp ||
+            $user->otp !== $args['otp'] ||
+            $user->otp_expired_at < now()
+        ) {
+            throw new GraphQLException("Invalid or expired OTP.");
+        }
+
+        $this->authService->updateAuthUserProfile([
+            'auth_user_id' => $user->id,
+            'first_name' => $args['first_name'],
+            'last_name' => $args['last_name'],
+            'otp' => null,
+            'otp_expired_at' => null,
+        ]);
+
+        $this->authService->updatePassword([
+            "currentPassword" => null,
+            "newPassword" => $args["password"],
+        ]);
+
+        return User::query()->where("id", $user["id"])->first();
     }
 
     /**
