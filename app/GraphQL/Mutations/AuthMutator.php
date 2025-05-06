@@ -11,6 +11,7 @@ use App\Services\NotificationService;
 use App\Services\UserService;
 use App\Services\WalletService;
 use App\Traits\FileUploadTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Str;
@@ -90,45 +91,51 @@ final class AuthMutator
      * @return array
      */
 
-    public function signUp($_, array $args): User
-    {
-        $otp = rand(100000, 999999);
+     public function signUp($_, array $args): User
+     {
+         $existingUser = User::where('email', $args['email'])->first();
+         if ($existingUser) {
+             throw new GraphQLException("User with this email already exists.");
+         }
 
-        $authUser = $this->authService->saveUser([
-            "firstName" => "Pending",
-            "lastName" => "Activation",
-            "email" => $args["email"],
-            "password" => bcrypt(Str::random(12)),
-            "role" => "Admin",
-            "otp" => $otp,
-        ])["data"];
+         $otp = rand(100000, 999999);
 
-        $this->userService->createProfile([
-            "user_type" => "Admin",
-            "auth_user_id" => $authUser["id"],
-            "default_currency" => "USD",
-            "profileData" => [
-                "country" => null,
-                "city" => null,
-            ],
-        ]);
+         $authUser = $this->authService->saveUser([
+             "firstName" => "Pending",
+             "lastName" => "Activation",
+             "email" => $args["email"],
+             "password" => bcrypt(Str::random(12)),
+             "role" => "Admin",
+             "otp" => $otp,
+             'isSso' => true,
+         ])["data"];
 
-        // Send OTP notification
-        $this->notificationService->sendNotification([
-            "auth_user_id" => $authUser["id"],
-            "type" => "email",
-            "email" => $authUser["email"],
-            "title" => "Admin Account Activation",
-            "content" => "Hello Admin, your OTP is $otp. Use it to activate your account.",
-            "template_id" => 1,
-            "template_data" => [
-                "username" => "Admin",
-                "otp" => $otp,
-            ]
-        ]);
+         $this->userService->createProfile([
+             "user_type" => "Admin",
+             "auth_user_id" => $authUser["id"],
+             "default_currency" => "USD",
+             "profileData" => [
+                 "country" => null,
+                 "city" => null,
+             ],
+         ]);
 
-        return User::query()->where("id", $authUser["id"])->first();
-    }
+         // Send OTP notification
+         $this->notificationService->sendNotification([
+             "auth_user_id" => $authUser["id"],
+             "type" => "email",
+             "email" => $authUser["email"],
+             "title" => "Admin Account Activation",
+             "content" => "Hello Admin, your OTP is $otp. Use it to activate your account.",
+             "template_id" => 1,
+             "template_data" => [
+                 "username" => "Admin",
+                 "otp" => $otp,
+             ]
+         ]);
+
+         return User::query()->where("id", $authUser["id"])->first();
+     }
 
     public function activateAdminAccount($_, array $args): User
     {
@@ -137,22 +144,23 @@ final class AuthMutator
         if (
             !$user->otp ||
             $user->otp !== $args['otp'] ||
-            $user->otp_expired_at < now()
+            !$user->otp_expired_at || Carbon::parse($user->otp_expired_at)->lt(now())
         ) {
             throw new GraphQLException("Invalid or expired OTP.");
         }
 
-        $this->authService->updateAuthUserProfile([
-            'auth_user_id' => $user->id,
-            'first_name' => $args['first_name'],
-            'last_name' => $args['last_name'],
+        $this->authService->saveUser([
+            'email' => $user->email,
+            'firstName' => $args['first_name'],
+            'lastName' => $args['last_name'],
             'otp' => null,
             'otp_expired_at' => null,
+            'ignoreError' => true,
         ]);
 
         $this->authService->updatePassword([
-            "currentPassword" => null,
-            "newPassword" => $args["password"],
+            "email" => $user->email,
+            "password" => $args["password"],
         ]);
 
         return User::query()->where("id", $user["id"])->first();
