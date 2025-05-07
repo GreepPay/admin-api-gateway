@@ -130,6 +130,7 @@ final class AuthMutator
             "template_data" => [
                 "username" => "Admin",
                 "otp" => $otp,
+                "email" => $authUser["email"],
             ]
         ]);
 
@@ -199,6 +200,7 @@ final class AuthMutator
             "template_data" => [
                 "username" => "Admin",
                 "otp" => $otp,
+                "email" => $userWithEmail->email,
             ]
         ]);
 
