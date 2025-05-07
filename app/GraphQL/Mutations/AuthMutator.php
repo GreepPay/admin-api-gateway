@@ -91,63 +91,59 @@ final class AuthMutator
      * @return array
      */
 
-     public function signUp($_, array $args): User
-     {
-         $existingUser = User::where('email', $args['email'])->first();
-         if ($existingUser) {
-             throw new GraphQLException("User with this email already exists.");
-         }
+    public function signUp($_, array $args): User
+    {
+        $existingUser = User::where('email', $args['email'])->first();
+        if ($existingUser) {
+            throw new GraphQLException("User with this email already exists.");
+        }
 
-         $otp = rand(100000, 999999);
+        $otp = rand(1000, 9999);
 
-         $authUser = $this->authService->saveUser([
-             "firstName" => "Pending",
-             "lastName" => "Activation",
-             "email" => $args["email"],
-             "password" => bcrypt(Str::random(12)),
-             "role" => "Admin",
-             "otp" => $otp,
-             'isSso' => true,
-         ])["data"];
+        $authUser = $this->authService->saveUser([
+            "firstName" => "Pending",
+            "lastName" => "Activation",
+            "email" => $args["email"],
+            "password" => bcrypt(Str::random(12)),
+            "role" => "Admin",
+            "otp" => $otp,
+        ])["data"];
 
-         $this->userService->createProfile([
-             "user_type" => "Admin",
-             "auth_user_id" => $authUser["id"],
-             "default_currency" => "USD",
-             "profileData" => [
-                 "country" => null,
-                 "city" => null,
-             ],
-         ]);
+        $this->userService->createProfile([
+            "user_type" => "Admin",
+            "auth_user_id" => $authUser["id"],
+            "default_currency" => "USD",
+            "profileData" => [
+                "country" => null,
+                "city" => null,
+            ],
+        ]);
 
-         // Send OTP notification
-         $this->notificationService->sendNotification([
-             "auth_user_id" => $authUser["id"],
-             "type" => "email",
-             "email" => $authUser["email"],
-             "title" => "Admin Account Activation",
-             "content" => "Hello Admin, your OTP is $otp. Use it to activate your account.",
-             "template_id" => 1,
-             "template_data" => [
-                 "username" => "Admin",
-                 "otp" => $otp,
-             ]
-         ]);
+        // Send OTP notification
+        $this->notificationService->sendNotification([
+            "auth_user_id" => $authUser["id"],
+            "type" => "email",
+            "email" => $authUser["email"],
+            "title" => "Admin Account Activation",
+            "content" => "Hello Admin, your OTP is $otp. Use it to activate your account.",
+            "template_id" => 1,
+            "template_data" => [
+                "username" => "Admin",
+                "otp" => $otp,
+            ]
+        ]);
 
-         return User::query()->where("id", $authUser["id"])->first();
-     }
+        return User::query()->where("id", $authUser["id"])->first();
+    }
 
     public function activateAdminAccount($_, array $args): User
     {
         $user = User::where('email', $args['email'])->firstOrFail();
 
-        if (
-            !$user->otp ||
-            $user->otp !== $args['otp'] ||
-            !$user->otp_expired_at || Carbon::parse($user->otp_expired_at)->lt(now())
-        ) {
-            throw new GraphQLException("Invalid or expired OTP.");
-        }
+        $this->authService->verifyUserOtp([
+            "email" => $args['email'],
+            "otp" => $args['otp'],
+        ]);
 
         $this->authService->saveUser([
             'email' => $user->email,
@@ -182,12 +178,29 @@ final class AuthMutator
             throw new GraphQLException("User with email not found");
         }
 
-        // First reset user OTP
+        // Reset OTP
         $this->authService->resetOtp([
             "email" => $userWithEmail->email,
         ]);
 
-        // TODO: Implement email verification notification
+        // Refresh user to get updated OTP
+        $userWithEmail->refresh();
+
+        // Send OTP notification
+        $otp = $userWithEmail->otp;
+
+        $this->notificationService->sendNotification([
+            "auth_user_id" => $userWithEmail->id,
+            "type" => "email",
+            "email" => $userWithEmail->email,
+            "title" => "Admin Account Activation",
+            "content" => "Hello Admin, your OTP is $otp. Use it to activate your account.",
+            "template_id" => 1,
+            "template_data" => [
+                "username" => "Admin",
+                "otp" => $otp,
+            ]
+        ]);
 
         return true;
     }

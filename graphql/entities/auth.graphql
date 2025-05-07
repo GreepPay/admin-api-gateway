@@ -15,6 +15,9 @@ extend type Mutation {
         password: String!
     ): User! @field(resolver: "AuthMutator@activateAdminAccount")
 
+    ResendEmailOTP(email: String!): Boolean!
+    @field(resolver: "AuthMutator@resendEmailOTP")
+
     SignIn(email: String!, password: String!): AuthResponse!
         @field(resolver: "AuthMutator@signIn")
 }
