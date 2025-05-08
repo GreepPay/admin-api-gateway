@@ -137,6 +137,9 @@ type Transaction {
 
 "A single wallet"
 type Wallet {
+    "Wallet ID"
+    id: Int
+
     "Unique UUID"
     uuid: String!
 
