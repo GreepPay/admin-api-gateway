@@ -3,6 +3,7 @@ extend type Query @guard {
         @find(model: "Transaction", key: "uuid")
 
     GetTransactions(
+        search: String @scope(name: "searchUser")
         where: _
             @whereConditions(
                 columns: [
@@ -14,6 +15,8 @@ extend type Query @guard {
                     "reference"
                 ]
             )
+        whereProfile: _
+            @whereHasConditions(relation: "profile", columns: ["user_type"])
         whereUser: _
             @whereHasConditions(
                 relation: "user"

@@ -133,6 +133,8 @@ type Transaction {
     updated_at: DateTime!
 
     user: User @belongsTo
+
+    profile: Profile @belongsTo
 }
 
 "A single wallet"
